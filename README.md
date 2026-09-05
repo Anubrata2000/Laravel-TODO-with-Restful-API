@@ -1,66 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Todo REST API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A production-grade RESTful Todo API built with **Laravel 10**, **Laravel Sanctum API Authentication**, and **MySQL**. Features complete user isolation, search & multi-field filtering, pagination, automated timestamp tracking, comprehensive PHPUnit test coverage, seeders, and factories.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Authentication & Authorization**: Secure registration, login, logout, and token revocation powered by Laravel Sanctum Bearer tokens.
+- **User Scoping & Isolation**: Multi-tenant data architecture ensuring every user can only view, edit, and manage their own todos.
+- **Todo CRUD & Quick Status Toggle**: Complete task lifecycle management with `Pending`, `In Progress`, and `Completed` status workflow. Automatic management of `completed_at` timestamps.
+- **Filtering, Search & Sorting**:
+  - Filter by `status` (`Pending`, `In Progress`, `Completed`)
+  - Filter by `priority` (`Low`, `Medium`, `High`)
+  - Search by keyword across title & description
+  - Filter by `due_date`
+  - Flexible sorting (`created_at`, `due_date`, `title`, `priority`, `status`) and custom page sizing (`rowsPerPage`)
+- **User Profile & Admin Management**: Profile endpoint for authenticated users and user management endpoints.
+- **Automated PHPUnit Test Suite**: End-to-end feature test coverage for Auth, Todos, and Users.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🚀 Quick Setup Guide
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. Clone & Install Dependencies
+```bash
+git clone git@github.com:Anubrata2000/Laravel-CRUD-Project-with-API.git
+cd Laravel-CRUD-Project-with-API
+composer install
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 2. Environment Setup
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Configure your `.env` database settings:
+```ini
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=todo_api
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Laravel Sponsors
+### 3. Run Migrations & Database Seeders
+```bash
+php artisan migrate:fresh --seed
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+This populates a demo user:
+- **Email**: `demo@example.com`
+- **Password**: `password`
 
-### Premium Partners
+### 4. Start Local Development Server
+```bash
+php artisan serve
+```
+The API will be accessible at `http://127.0.0.1:8000/api`.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## 🧪 Running Automated Tests
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Run the full PHPUnit feature test suite:
+```bash
+php artisan test
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 📑 API Reference
 
-## Security Vulnerabilities
+All protected endpoints require the HTTP Authorization header:
+```http
+Authorization: Bearer <your_sanctum_token>
+Accept: application/json
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 🔐 Authentication & Profile Endpoints
 
-## License
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/register` | Register a new user | No |
+| `POST` | `/api/login` | Log in and get Bearer token | No |
+| `GET` | `/api/user/profile` | Get current user profile | Yes |
+| `PUT` | `/api/user/profile` | Update current user profile | Yes |
+| `POST` | `/api/logout` | Revoke current access token | Yes |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+### 📝 Todo Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/todos` | List paginated todos (supports filters & search) | Yes |
+| `POST` | `/api/todos` | Create a new todo | Yes |
+| `GET` | `/api/todos/{id}` | Get single todo details | Yes |
+| `PUT` | `/api/todos/{id}` | Update todo details | Yes |
+| `PATCH` | `/api/todos/{id}/status` | Quick update todo status | Yes |
+| `DELETE` | `/api/todos/{id}` | Soft-delete a todo | Yes |
+
+#### Query Parameters for `GET /api/todos`:
+- `status`: `Pending` \| `In Progress` \| `Completed`
+- `priority`: `Low` \| `Medium` \| `High`
+- `search`: Keyword search in title/description
+- `due_date`: `YYYY-MM-DD`
+- `sort_by`: `created_at` \| `due_date` \| `title` \| `priority` \| `status`
+- `sort_order`: `asc` \| `desc`
+- `rowsPerPage`: Number of items per page (default: 10)
+
+---
+
+### 👤 User Administration Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/users` | List paginated users | Yes |
+| `GET` | `/api/users/{id}` | Get specific user by ID | Yes |
+| `PUT` | `/api/users/{id}` | Update specific user by ID | Yes |
+| `DELETE` | `/api/users/{id}` | Delete user by ID | Yes |
+
+---
+
+## 📜 License
+Open-sourced software licensed under the [MIT license](LICENSE).

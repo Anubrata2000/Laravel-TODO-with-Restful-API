@@ -18,10 +18,13 @@ class UserRequest extends FormRequest {
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
+        $isUpdate = $this->isMethod( 'PUT' ) || $this->isMethod( 'PATCH' );
+        $userId   = $this->route( 'id' ) ?? $this->user()?->id;
+
         return [
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $this->route( 'id' ),
-            'password' => 'required|string|min:8',
+            'name'     => ( $isUpdate ? 'sometimes|' : '' ) . 'required|string|max:255',
+            'email'    => ( $isUpdate ? 'sometimes|' : '' ) . 'required|email|unique:users,email,' . $userId,
+            'password' => ( $isUpdate ? 'nullable|' : '' ) . 'required|string|min:8',
         ];
     }
 }

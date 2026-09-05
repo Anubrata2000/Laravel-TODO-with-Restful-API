@@ -10,13 +10,12 @@ use Symfony\Component\HttpFoundation\Response;
 class TodoController extends Controller {
     protected $todoService;
 
-    public function __construct() {
-        $this->todoService = new TodoService();
+    public function __construct( TodoService $todoService ) {
+        $this->todoService = $todoService;
     }
 
     public function index( Request $request ) {
-        $rowsPerPage = $request->input( 'rowsPerPage', 10 ); // Default to 10 rows per page if not provided
-        $todos = $this->todoService->getAllTodos( $rowsPerPage );
+        $todos = $this->todoService->getAllTodos( $request->all() );
 
         return renderJsonResponse( trans( 'message.todo.todos_retrieved_successfully' ), Response::HTTP_OK, $todos );
     }
@@ -39,6 +38,20 @@ class TodoController extends Controller {
 
     public function update( TodoRequest $request, $id ) {
         $todo = $this->todoService->updateTodo( $id, $request->validated() );
+
+        if ( !$todo ) {
+            return renderJsonResponse( trans( 'message.todo.not_found' ), Response::HTTP_NOT_FOUND );
+        }
+
+        return renderJsonResponse( trans( 'message.todo.updated_successfully' ), Response::HTTP_OK, $todo );
+    }
+
+    public function updateStatus( Request $request, $id ) {
+        $request->validate( [
+            'status' => 'required|in:Pending,In Progress,Completed',
+        ] );
+
+        $todo = $this->todoService->updateStatus( $id, $request->input( 'status' ) );
 
         if ( !$todo ) {
             return renderJsonResponse( trans( 'message.todo.not_found' ), Response::HTTP_NOT_FOUND );

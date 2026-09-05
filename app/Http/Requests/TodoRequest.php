@@ -18,11 +18,13 @@ class TodoRequest extends FormRequest {
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array {
+        $isUpdate = $this->isMethod( 'PUT' ) || $this->isMethod( 'PATCH' );
+
         return [
-            'title'        => 'required|string|max:255',
+            'title'        => ( $isUpdate ? 'sometimes|' : '' ) . 'required|string|max:255',
             'description'  => 'nullable|string',
-            'status'       => 'required|in:Pending,In Progress,Completed',
-            'priority'     => 'required|in:Low,Medium,High',
+            'status'       => ( $isUpdate ? 'sometimes|' : '' ) . 'required|in:Pending,In Progress,Completed',
+            'priority'     => ( $isUpdate ? 'sometimes|' : '' ) . 'required|in:Low,Medium,High',
             'due_date'     => 'nullable|date',
             'completed_at' => 'nullable|date',
             'comments'     => 'nullable|string',

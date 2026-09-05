@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Todo;
 use App\Models\UserTodo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -58,9 +59,16 @@ class User extends Authenticatable {
     ];
 
     /**
-     * Get the users associated with the todo.
+     * Get the UserTodo records associated with the user.
      */
     public function userTodos() {
-        return $this->hasMany( UserTodo::class, 'todo_id' );
+        return $this->hasMany( UserTodo::class, 'user_id' );
+    }
+
+    /**
+     * Get the todos associated with the user.
+     */
+    public function todos() {
+        return $this->belongsToMany( Todo::class, 'user_todos', 'user_id', 'todo_id' );
     }
 }

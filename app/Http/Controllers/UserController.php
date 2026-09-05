@@ -6,7 +6,9 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller {
@@ -30,19 +32,25 @@ class UserController extends Controller {
     }
 
     /**
-     * Store a newly created user in storage.
+     * Store a newly created user in storage (Register).
      */
     public function store( UserRequest $request ) {
         $user = $this->user->create( [
             'name'              => $request->input( 'name' ),
             'email'             => $request->input( 'email' ),
-            'password'          => bcrypt( $request->input( 'password' ) ),
+            'password'          => $request->input( 'password' ),
             'email_verified_at' => Carbon::now(),
         ] );
+
+        $token = $user->createToken( 'auth_token' )->plainTextToken;
 
         return renderJsonResponse(
             trans( 'message.user.created_successfully' ),
             Response::HTTP_CREATED,
+            [
+                'user'  => $user,
+                'token' => $token,
+            ]
         );
     }
 
@@ -79,15 +87,17 @@ class UserController extends Controller {
             );
         }
 
-        $user->update( [
-            'name'     => $request->input( 'name' ),
-            'email'    => $request->input( 'email' ),
-            'password' => $request->has( 'password' ) ? bcrypt( $request->input( 'password' ) ) : $user->password,
-        ] );
+        $data = $request->only( ['name', 'email'] );
+        if ( $request->filled( 'password' ) ) {
+            $data['password'] = $request->input( 'password' );
+        }
+
+        $user->update( array_filter( $data ) );
 
         return renderJsonResponse(
             trans( 'message.user.updated_successfully' ),
             Response::HTTP_OK,
+            $user->fresh()
         );
     }
 
@@ -119,15 +129,15 @@ class UserController extends Controller {
         $credentials = $request->only( 'email', 'password' );
 
         if ( Auth::attempt( $credentials ) ) {
-            $user = Auth::user();
-            $token = $user->createToken( 'authToken' )->plainTextToken;
+            $user  = Auth::user();
+            $token = $user->createToken( 'auth_token' )->plainTextToken;
 
             return renderJsonResponse(
                 trans( 'message.user.login_successful' ),
                 Response::HTTP_OK,
                 [
-                    'token' => $token,
                     'user'  => $user,
+                    'token' => $token,
                 ]
             );
         }
@@ -139,18 +149,13 @@ class UserController extends Controller {
     }
 
     /**
-     * Log the user out and invalidate the token.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Log the user out and revoke current token.
      */
-    public function logout() {
-        // Get the currently authenticated user
+    public function logout( Request $request ) {
         $user = Auth::user();
-        dd( $user );
 
-        if ( $user ) {
-            // Revoke the user's current token
-            $user->currentAccessToken()->delete();
+        if ( $user && $request->user()?->currentAccessToken() ) {
+            $request->user()->currentAccessToken()->delete();
 
             return renderJsonResponse(
                 trans( 'message.user.logout_successful' ),
@@ -164,4 +169,34 @@ class UserController extends Controller {
         );
     }
 
+    /**
+     * Get authenticated user profile.
+     */
+    public function profile( Request $request ) {
+        return renderJsonResponse(
+            trans( 'message.user.retrieved_successfully' ),
+            Response::HTTP_OK,
+            $request->user()
+        );
+    }
+
+    /**
+     * Update authenticated user profile.
+     */
+    public function updateProfile( UserRequest $request ) {
+        $user = $request->user();
+
+        $data = $request->only( ['name', 'email'] );
+        if ( $request->filled( 'password' ) ) {
+            $data['password'] = $request->input( 'password' );
+        }
+
+        $user->update( array_filter( $data ) );
+
+        return renderJsonResponse(
+            trans( 'message.user.updated_successfully' ),
+            Response::HTTP_OK,
+            $user->fresh()
+        );
+    }
 }

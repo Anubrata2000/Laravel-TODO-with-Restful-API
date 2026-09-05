@@ -7,16 +7,23 @@
  * @param type $http_response only sent when exception is thrown
  * @return type
  */
-function renderJSONResponse( $message, $httpStatusCode, $data = null ) {
+if ( !function_exists( 'renderJsonResponse' ) ) {
+    function renderJsonResponse( $message, $httpStatusCode, $data = null ) {
+        $response = [];
 
-    $response = [];
+        if ( !is_null( $data ) ) {
+            $response['data'] = $data;
+        }
 
-    if ( !is_null( $data ) ) {
-        $response['data'] = $data;
+        $response['message'] = $message;
+        $response['status_code'] = $httpStatusCode;
+
+        return response()->json( $response, $httpStatusCode );
     }
+}
 
-    $response['message'] = $message;
-    $response['status_code'] = $httpStatusCode;
-
-    return response()->json( $response, $httpStatusCode );
+if ( !function_exists( 'renderJSONResponse' ) ) {
+    function renderJSONResponse( $message, $httpStatusCode, $data = null ) {
+        return renderJsonResponse( $message, $httpStatusCode, $data );
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\UserTodo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,14 @@ use Ramsey\Uuid\Uuid;
 
 class Todo extends Model {
     use HasFactory, SoftDeletes;
+
+    const STATUS_PENDING     = 'Pending';
+    const STATUS_IN_PROGRESS = 'In Progress';
+    const STATUS_COMPLETED   = 'Completed';
+
+    const PRIORITY_LOW    = 'Low';
+    const PRIORITY_MEDIUM = 'Medium';
+    const PRIORITY_HIGH   = 'High';
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -24,6 +33,11 @@ class Todo extends Model {
         'comments',
     ];
 
+    protected $casts = [
+        'completed_at' => 'datetime',
+        'due_date'     => 'date',
+    ];
+
     protected static function boot() {
         parent::boot();
 
@@ -33,8 +47,6 @@ class Todo extends Model {
             }
         } );
     }
-
-    protected $dates = ['deleted_at', 'completed_at', 'due_date'];
 
     /**
      * Get the full description of the todo item.
@@ -46,10 +58,16 @@ class Todo extends Model {
     }
 
     /**
-     * Get the users associated with the todo.
+     * Get the UserTodo records associated with the todo.
      */
     public function userTodos() {
         return $this->hasMany( UserTodo::class, 'todo_id' );
     }
 
+    /**
+     * Get the users associated with the todo.
+     */
+    public function users() {
+        return $this->belongsToMany( User::class, 'user_todos', 'todo_id', 'user_id' );
+    }
 }
