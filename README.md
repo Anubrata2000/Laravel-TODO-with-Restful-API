@@ -1,41 +1,85 @@
-# Laravel Todo REST API
+# 📝 Laravel Todo REST API
 
-A production-grade RESTful Todo API built with **Laravel 10**, **Laravel Sanctum API Authentication**, and **MySQL**. Features complete user isolation, search & multi-field filtering, pagination, automated timestamp tracking, comprehensive PHPUnit test coverage, seeders, and factories.
+A production-grade, multi-tenant RESTful Todo API built with **Laravel 10**, **Laravel Sanctum API Authentication**, and **MySQL/SQLite**. Designed for backend learning and production deployment, this API features strict user isolation, search & multi-field filtering, pagination, automated timestamp tracking, comprehensive PHPUnit test coverage, seeders, factories, and a ready-to-use Postman collection.
+
+---
+
+## 📑 Table of Contents
+- [About The Project](#-about-the-project)
+- [Key Features](#-key-features)
+- [Prerequisites](#-prerequisites)
+- [Step-by-Step Setup Guide](#-step-by-step-setup-guide)
+- [How to Use the Postman Collection](#-how-to-use-the-postman-collection)
+- [Running Automated Tests](#-running-automated-tests)
+- [API Endpoints Reference](#-api-endpoints-reference)
+- [License](#-license)
+
+---
+
+## ℹ️ About The Project
+
+This project provides a robust backend API for managing to-do items securely. Every authenticated user gets their own isolated workspace where they can create, search, filter, update, and manage tasks. It implements Laravel Sanctum Bearer tokens for authentication, ensuring it can easily connect to any frontend framework (React, Vue, Next.js, Angular, Flutter, Swift, Kotlin, etc.).
 
 ---
 
 ## 🌟 Key Features
 
-- **Authentication & Authorization**: Secure registration, login, logout, and token revocation powered by Laravel Sanctum Bearer tokens.
-- **User Scoping & Isolation**: Multi-tenant data architecture ensuring every user can only view, edit, and manage their own todos.
-- **Todo CRUD & Quick Status Toggle**: Complete task lifecycle management with `Pending`, `In Progress`, and `Completed` status workflow. Automatic management of `completed_at` timestamps.
-- **Filtering, Search & Sorting**:
+- **🔐 Sanctum Bearer Token Auth**: Secure User Registration, Login, Profile Management, and Logout with automatic token revocation.
+- **🛡️ Strict User Isolation (Multi-Tenancy)**: Users can only view, update, or delete their own todos. Unauthorized cross-user data access is blocked.
+- **📋 Complete Todo Lifecycle**: Create, view, update, status toggle (`Pending`, `In Progress`, `Completed`), and soft-delete.
+- **🕒 Automated Timestamp Management**: Changing status to `Completed` automatically sets `completed_at = now()`. Reverting status resets it to `null`.
+- **🔍 Advanced Search & Filtering**:
   - Filter by `status` (`Pending`, `In Progress`, `Completed`)
   - Filter by `priority` (`Low`, `Medium`, `High`)
-  - Search by keyword across title & description
+  - Keyword search across `title` & `description`
   - Filter by `due_date`
-  - Flexible sorting (`created_at`, `due_date`, `title`, `priority`, `status`) and custom page sizing (`rowsPerPage`)
-- **User Profile & Admin Management**: Profile endpoint for authenticated users and user management endpoints.
-- **Automated PHPUnit Test Suite**: End-to-end feature test coverage for Auth, Todos, and Users.
+  - Flexible sorting (`created_at`, `due_date`, `title`, `priority`, `status`)
+  - Custom pagination size (`rowsPerPage`)
+- **🧪 Comprehensive PHPUnit Tests**: Full test suite covering Auth, Todos, User Scoping, and Administration.
+- **📮 Ready-to-use Postman Collection**: Importable JSON collection included in the project root with auto-saving authentication scripts.
 
 ---
 
-## 🚀 Quick Setup Guide
+## 📋 Prerequisites
 
-### 1. Clone & Install Dependencies
+Before setting up the project, make sure you have the following installed on your machine:
+
+- **PHP** (>= 8.1)
+- **Composer** (PHP dependency manager)
+- **Database**: MySQL, MariaDB, or SQLite (via Laragon, XAMPP, Docker, or native installation)
+- **Postman** (for API testing)
+
+---
+
+## 🚀 Step-by-Step Setup Guide
+
+Follow these steps to get the API up and running on your local machine:
+
+### 1. Clone the Repository
 ```bash
 git clone git@github.com:Anubrata2000/Laravel-CRUD-Project-with-API.git
 cd Laravel-CRUD-Project-with-API
+```
+
+### 2. Install PHP Dependencies
+```bash
 composer install
 ```
 
-### 2. Environment Setup
+### 3. Configure Environment File
+Copy `.env.example` to create your `.env` file:
 ```bash
 cp .env.example .env
+```
+Generate the application key:
+```bash
 php artisan key:generate
 ```
 
-Configure your `.env` database settings:
+### 4. Configure Database Credentials
+Open `.env` in your code editor and update the database settings for your environment:
+
+**For MySQL (Laragon / XAMPP / Local MySQL):**
 ```ini
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -44,76 +88,134 @@ DB_DATABASE=todo_api
 DB_USERNAME=root
 DB_PASSWORD=
 ```
+*(Make sure to create a database named `todo_api` in phpMyAdmin or MySQL CLI before migrating).*
 
-### 3. Run Migrations & Database Seeders
+**For SQLite (Zero-config Option):**
+```ini
+DB_CONNECTION=sqlite
+```
+*(Create an empty file at `database/database.sqlite` if using SQLite).*
+
+### 5. Run Database Migrations & Seeders
+Run the migrations and seed demo data:
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-This populates a demo user:
-- **Email**: `demo@example.com`
+This creates the database schema and seeds default test users:
+- **Demo User Email**: `demo@example.com`
 - **Password**: `password`
 
-### 4. Start Local Development Server
+### 6. Start the Local Server
 ```bash
 php artisan serve
 ```
-The API will be accessible at `http://127.0.0.1:8000/api`.
+The server will start running at:
+`http://127.0.0.1:8000` (API base URL: `http://127.0.0.1:8000/api`)
+
+---
+
+## 📮 How to Use the Postman Collection
+
+A pre-configured Postman Collection is included directly in the root of this project:
+`Todo_API.postman_collection.json`
+
+### Step 1: Import Collection into Postman
+1. Open **Postman**.
+2. Click the **Import** button in the top-left corner.
+3. Click **Choose Files** (or drag and drop) and select `Todo_API.postman_collection.json` from the project root folder.
+4. Click **Import**.
+
+### Step 2: Collection Overview & Structure
+The imported collection contains three organized folders:
+- **Authentication & Profile**
+  - `Register User`
+  - `Login User`
+  - `Get Profile`
+  - `Update Profile`
+  - `Logout User`
+- **Todos**
+  - `List Todos (Filtered & Paginated)`
+  - `Create Todo`
+  - `Get Single Todo`
+  - `Update Todo`
+  - `Update Todo Status`
+  - `Delete Todo`
+- **User Administration**
+  - `List Users`
+  - `Get User By ID`
+  - `Update User By ID`
+  - `Delete User By ID`
+
+### Step 3: Automatic Authentication Flow
+This Postman collection features **automatic token saving**:
+1. Open and send the **Login User** request (or **Register User**).
+2. The built-in Postman test script automatically extracts the returned Sanctum Bearer token and saves it to the `{{token}}` collection variable!
+3. All subsequent requests (e.g. `List Todos`, `Create Todo`, `Get Profile`) automatically inherit this Bearer token in their headers without requiring manual copy-pasting.
+4. Sending **Logout User** automatically clears the stored token.
 
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the full PHPUnit feature test suite:
+Run the PHPUnit test suite to verify all endpoints and user-scoping security logic:
+
 ```bash
 php artisan test
 ```
 
+Tests run in-memory using SQLite and test:
+- User Registration, Login, Profile, and Token Revocation
+- Todo CRUD operations, ownership isolation, search, filtering, and timestamp management
+- User administration routes
+
 ---
 
-## 📑 API Reference
+## 📑 API Endpoints Reference
 
-All protected endpoints require the HTTP Authorization header:
+All protected endpoints require the following headers:
 ```http
 Authorization: Bearer <your_sanctum_token>
 Accept: application/json
 ```
 
-### 🔐 Authentication & Profile Endpoints
+### 🔐 Authentication & Profile
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/register` | Register a new user | No |
-| `POST` | `/api/login` | Log in and get Bearer token | No |
-| `GET` | `/api/user/profile` | Get current user profile | Yes |
+| `POST` | `/api/login` | Log in and receive Bearer token | No |
+| `GET` | `/api/user/profile` | Get current authenticated user profile | Yes |
 | `PUT` | `/api/user/profile` | Update current user profile | Yes |
 | `POST` | `/api/logout` | Revoke current access token | Yes |
 
 ---
 
-### 📝 Todo Endpoints
+### 📝 Todo Management
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/todos` | List paginated todos (supports filters & search) | Yes |
+| `GET` | `/api/todos` | List paginated todos (supports search/filter) | Yes |
 | `POST` | `/api/todos` | Create a new todo | Yes |
-| `GET` | `/api/todos/{id}` | Get single todo details | Yes |
+| `GET` | `/api/todos/{id}` | Get single todo details by UUID | Yes |
 | `PUT` | `/api/todos/{id}` | Update todo details | Yes |
 | `PATCH` | `/api/todos/{id}/status` | Quick update todo status | Yes |
 | `DELETE` | `/api/todos/{id}` | Soft-delete a todo | Yes |
 
 #### Query Parameters for `GET /api/todos`:
-- `status`: `Pending` \| `In Progress` \| `Completed`
-- `priority`: `Low` \| `Medium` \| `High`
-- `search`: Keyword search in title/description
-- `due_date`: `YYYY-MM-DD`
-- `sort_by`: `created_at` \| `due_date` \| `title` \| `priority` \| `status`
-- `sort_order`: `asc` \| `desc`
-- `rowsPerPage`: Number of items per page (default: 10)
+| Parameter | Type | Options / Description | Example |
+| :--- | :--- | :--- | :--- |
+| `status` | string | `Pending`, `In Progress`, `Completed` | `/api/todos?status=Pending` |
+| `priority` | string | `Low`, `Medium`, `High` | `/api/todos?priority=High` |
+| `search` | string | Search keyword in title or description | `/api/todos?search=report` |
+| `due_date` | string | Date in `YYYY-MM-DD` format | `/api/todos?due_date=2026-09-15` |
+| `sort_by` | string | `created_at`, `due_date`, `title`, `priority`, `status` | `/api/todos?sort_by=due_date` |
+| `sort_order` | string | `asc` or `desc` (default: `desc`) | `/api/todos?sort_order=asc` |
+| `rowsPerPage`| integer| Number of items per page (default: 10) | `/api/todos?rowsPerPage=15` |
 
 ---
 
-### 👤 User Administration Endpoints
+### 👤 User Administration
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
@@ -125,4 +227,5 @@ Accept: application/json
 ---
 
 ## 📜 License
-Open-sourced software licensed under the [MIT license](LICENSE).
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
